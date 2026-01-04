@@ -17,7 +17,6 @@ const Login = ({ setUserName }) => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
 
-  // Автоматическое скрытие уведомлений через 3 секунды
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
@@ -25,7 +24,7 @@ const Login = ({ setUserName }) => {
       }, 3000);
       return () => clearTimeout(timer);
     }
-    
+
     if (error) {
       const timer = setTimeout(() => {
         setError('');
@@ -40,18 +39,14 @@ const Login = ({ setUserName }) => {
     setIsLoading(true);
 
     try {
-      // Диспатчим экшен и ждем его выполнения
       const result = await dispatch(login({ email, password }));
 
-      // Проверяем, что результат успешный
       if (result.error) {
         throw new Error(result.error.message || 'Ошибка аутентификации');
       }
 
-      // Устанавливаем сообщение об успехе
       setSuccessMessage('Вы успешно авторизировались!');
-      
-      // Перенаправляем на главную страницу через 1.5 секунды
+
       setTimeout(() => {
         navigate('/');
       }, 1500);
@@ -73,17 +68,17 @@ const Login = ({ setUserName }) => {
       <div className="login-container">
         <div className="login-card">
           <h2 className="login-title">Войти</h2>
-          
+
           {/* Уведомление об успехе */}
           {successMessage && (
             <div className="login-success-message">
               {successMessage}
             </div>
           )}
-          
+
           {/* Сообщение об ошибке */}
           {error && <div className="error-message">{error}</div>}
-          
+
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
               <label htmlFor="email" className="form-label">Email:</label>
