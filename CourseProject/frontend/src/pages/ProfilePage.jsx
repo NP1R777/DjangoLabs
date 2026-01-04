@@ -114,6 +114,19 @@ const ProfilePage = () => {
     );
   }
 
+  if (!userData) {
+    return (
+      <div>
+        <Header />
+        <div className="profile-container">
+          <div className="profile-card">
+            Не удалось загрузить данные профиля.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
         <Header />
