@@ -265,7 +265,8 @@ def login_view(request):
     if user is not None:
         user_deleted = CustomUser.objects.filter(email=email).values('deleted_at')
         if user_deleted[0].get('deleted_at') != None:
-            return HttpResponse("{'status': 'error', 'error': 'login failed'}")
+            return Response({"status": "error", "error": "login failed"},
+                            status=status.HTTP_401_UNAUTHORIZED)
         else:
             pk = CustomUser.objects.filter(email=email).values('id')
             is_superuser = CustomUser.objects.filter(email=email).values('is_superuser')
@@ -276,7 +277,8 @@ def login_view(request):
                             "pk": pk,
                             "is_superuser": is_superuser}, status=200)
     else:
-        return HttpResponse("{'status': 'error', 'error': 'login failed'}")
+        return Response({"status": "error", "error": "login failed"},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['Post'])
 def logout_view(request):
