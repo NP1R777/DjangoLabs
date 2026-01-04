@@ -28,8 +28,11 @@ export const login = (credentials) => async (dispatch) => {
       localStorage.clear();
       const pk = data?.pk?.[0]?.id ?? data?.pk?.id ?? data?.pk;
       const isSuperuser = data?.is_superuser?.[0]?.is_superuser ?? data?.is_superuser;
+      if (pk === undefined || pk === null || pk === '' || pk === 'undefined') {
+        throw new Error('Ошибка аутентификации: сервер не вернул идентификатор пользователя (pk).');
+      }
       localStorage.setItem('pk', String(pk));
-      localStorage.setItem('is_superuser', String(isSuperuser));
+      localStorage.setItem('is_superuser', String(!!isSuperuser));
 
       dispatch(loginSuccess({
         user: data.email,
