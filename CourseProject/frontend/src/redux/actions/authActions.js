@@ -28,8 +28,8 @@ export const login = (credentials) => async (dispatch) => {
       localStorage.clear();
       const pk = data?.pk?.[0]?.id ?? data?.pk?.id ?? data?.pk;
       const isSuperuser = data?.is_superuser?.[0]?.is_superuser ?? data?.is_superuser;
-      localStorage.setItem('pk', pk);
-      localStorage.setItem('is_superuser', isSuperuser);
+      localStorage.setItem('pk', String(pk));
+      localStorage.setItem('is_superuser', String(isSuperuser));
 
       dispatch(loginSuccess({
         user: data.email,
