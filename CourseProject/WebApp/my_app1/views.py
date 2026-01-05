@@ -263,20 +263,26 @@ def login_view(request):
     password = request.data.get("password", None)
     user = authenticate(request=request, username=email, password=password)
     if user is not None:
-        user_deleted = CustomUser.objects.filter(email=email).values('deleted_at')
-        if user_deleted[0].get('deleted_at') != None:
-            return HttpResponse("{'status': 'error', 'error': 'login failed'}")
+        user_row = CustomUser.objects.filter(email=email).values('id', 'is_superuser', 'deleted_at').first()
+        if not user_row or user_row.get('deleted_at') is not None:
+            return Response({"status": "error", "error": "login failed"},
+                            status=status.HTTP_401_UNAUTHORIZED)
         else:
-            pk = CustomUser.objects.filter(email=email).values('id')
-            is_superuser = CustomUser.objects.filter(email=email).values('is_superuser')
             login(request, user)
             random_key = str(uuid.uuid4())
-            session_storage.set(random_key, email)
+            try:
+                session_storage.set(random_key, email)
+            except redis.exceptions.RedisError as e:
+                return Response(
+                    {"status": "error", "error": "redis unavailable", "details": str(e)},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
             return Response({"status": 'Success',
-                            "pk": pk,
-                            "is_superuser": is_superuser}, status=200)
+                            "pk": user_row.get('id'),
+                            "is_superuser": user_row.get('is_superuser')}, status=200)
     else:
-        return HttpResponse("{'status': 'error', 'error': 'login failed'}")
+        return Response({"status": "error", "error": "login failed"},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['Post'])
 def logout_view(request):

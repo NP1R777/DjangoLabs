@@ -26,8 +26,32 @@ export const login = (credentials) => async (dispatch) => {
 
     if (response.ok) {
       localStorage.clear();
-      localStorage.setItem('pk', data.pk[0].id);
-      localStorage.setItem('is_superuser', data.is_superuser[0].is_superuser);
+      const pkRaw = data?.pk;
+      const isSuperuserRaw = data?.is_superuser;
+
+      const pk =
+        pkRaw?.[0]?.id ??
+        pkRaw?.[0]?.pk ??
+        (pkRaw?.[0] && typeof pkRaw?.[0] === 'object' ? Object.values(pkRaw[0])[0] : undefined) ??
+        pkRaw?.id ??
+        pkRaw?.pk ??
+        pkRaw;
+
+      const isSuperuser =
+        isSuperuserRaw?.[0]?.is_superuser ??
+        isSuperuserRaw?.[0]?.isSuperuser ??
+        (isSuperuserRaw?.[0] && typeof isSuperuserRaw?.[0] === 'object'
+          ? Object.values(isSuperuserRaw[0])[0]
+          : undefined) ??
+        isSuperuserRaw?.is_superuser ??
+        isSuperuserRaw?.isSuperuser ??
+        isSuperuserRaw;
+
+      if (pk === undefined || pk === null || pk === '' || pk === 'undefined') {
+        throw new Error('Ошибка аутентификации: сервер не вернул идентификатор пользователя (pk).');
+      }
+      localStorage.setItem('pk', String(pk));
+      localStorage.setItem('is_superuser', String(!!isSuperuser));
 
       dispatch(loginSuccess({
         user: data.email,
