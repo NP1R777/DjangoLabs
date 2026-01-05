@@ -270,7 +270,13 @@ def login_view(request):
         else:
             login(request, user)
             random_key = str(uuid.uuid4())
-            session_storage.set(random_key, email)
+            try:
+                session_storage.set(random_key, email)
+            except redis.exceptions.RedisError as e:
+                return Response(
+                    {"status": "error", "error": "redis unavailable", "details": str(e)},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
             return Response({"status": 'Success',
                             "pk": user_row.get('id'),
                             "is_superuser": user_row.get('is_superuser')}, status=200)
